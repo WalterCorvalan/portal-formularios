@@ -33,3 +33,20 @@ def login(data: dict, db: Session = Depends(get_db)):
 
     token = create_access_token({"sector_id": sector.id, "sector": sector.name})
     return {"token": token}
+
+
+@app.get("/forms")
+def get_forms(token: str = Depends(oauth2_scheme)):
+    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    sector = payload.get("sector")
+
+    if sector != "ventas":
+        raise HTTPException(status_code=403)
+
+    return [
+        {
+            "id": 1,
+            "name": "Formulario Ventas",
+            "embed_url": "https://noteforms.com/forms/xxxx"
+        }
+    ]
