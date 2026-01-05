@@ -10,7 +10,8 @@ export default function Dashboard() {
 
   return (
     <div>
-      <h2>Formularios</h2>
+      <h2>Dashboard - Ventas</h2>
+
       {forms.map(f => (
         <div key={f.id}>
           <a href={`/form/${f.id}`}>{f.name}</a>
