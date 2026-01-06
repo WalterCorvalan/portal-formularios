@@ -1,35 +1,38 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, Table, ForeignKey
 from sqlalchemy.orm import relationship
 from .database import Base
 
+sector_forms = Table(
+    "sector_forms",
+    Base.metadata,
+    Column("sector_id", ForeignKey("sectors.id"), primary_key=True),
+    Column("form_id", ForeignKey("forms.id"), primary_key=True),
+)
 
 class Sector(Base):
     __tablename__ = "sectors"
 
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(50), unique=True, index=True)
-    password_hash = Column(String(255))
+    id = Column(Integer, primary_key=True)
+    name = Column(String(50), unique=True, nullable=False)
+    password_hash = Column(String(255), nullable=False)
     active = Column(Boolean, default=True)
 
-    forms = relationship("SectorForm", back_populates="sector")
-
+    forms = relationship(
+        "Form",
+        secondary=sector_forms,
+        back_populates="sectors"
+    )
 
 class Form(Base):
     __tablename__ = "forms"
 
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(100))
-    embed_url = Column(String(500))
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), nullable=False)
+    embed_url = Column(String(255), nullable=False)
     active = Column(Boolean, default=True)
 
-    sectors = relationship("SectorForm", back_populates="form")
-
-
-class SectorForm(Base):
-    __tablename__ = "sector_forms"
-
-    sector_id = Column(Integer, ForeignKey("sectors.id"), primary_key=True)
-    form_id = Column(Integer, ForeignKey("forms.id"), primary_key=True)
-
-    sector = relationship("Sector", back_populates="forms")
-    form = relationship("Form", back_populates="sectors")
+    sectors = relationship(
+        "Sector",
+        secondary=sector_forms,
+        back_populates="forms"
+    )
