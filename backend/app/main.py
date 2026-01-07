@@ -21,7 +21,7 @@ app.add_middleware(
 @app.post("/login")
 def login(data: dict, db: Session = Depends(get_db)):
     sector = db.query(Sector).filter(
-        Sector.name == data["user"],
+        Sector.name == data["username"],
         Sector.active == True
     ).first()
 
@@ -34,10 +34,11 @@ def login(data: dict, db: Session = Depends(get_db)):
     token = create_access_token({
         "sector_id": sector.id,
         "sector": sector.name,
-        "role": "sector"
+        "role": getattr(sector, "role", "sector")
     })
 
     return {"token": token}
+
 
 # 📦 Routers
 app.include_router(forms.router)
