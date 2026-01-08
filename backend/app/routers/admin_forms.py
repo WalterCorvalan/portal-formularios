@@ -32,6 +32,7 @@ def create_form(
     return form
 
 
+# 🚀 NUEVO: ASIGNAR FORM A SECTOR
 @router.post("/admin/forms/{form_id}/assign/{sector_id}")
 def assign_form_to_sector(
     form_id: int,
@@ -41,20 +42,21 @@ def assign_form_to_sector(
 ):
     form = db.query(Form).filter(Form.id == form_id).first()
     if not form:
-        raise HTTPException(status_code=404, detail="Formulario no existe")
+        raise HTTPException(status_code=404, detail="Formulario inexistente")
 
     sector = db.query(Sector).filter(
         Sector.id == sector_id,
         Sector.active == True
     ).first()
+
     if not sector:
-        raise HTTPException(status_code=404, detail="Sector no existe")
+        raise HTTPException(status_code=404, detail="Sector inexistente")
 
     if form in sector.forms:
-        raise HTTPException(status_code=400, detail="Ya asignado")
+        raise HTTPException(status_code=400, detail="Formulario ya asignado")
 
     sector.forms.append(form)
     db.commit()
 
-    return {"ok": True, "message": "Formulario asignado"}
+    return {"ok": True}
  
