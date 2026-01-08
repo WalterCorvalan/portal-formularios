@@ -10,6 +10,16 @@ router = APIRouter(
     tags=["admin-sectors"]
 )
 
+# ✅ LISTAR SECTORES (LO QUE FALTABA)
+@router.get("")
+def get_sectors(
+    _: dict = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    return db.query(Sector).all()
+
+
+# ✅ CREAR SECTOR
 @router.post("")
 def create_sector(
     data: dict,

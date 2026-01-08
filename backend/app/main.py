@@ -18,27 +18,31 @@ app.add_middleware(
     allow_headers=["*"],   # 👈 incluye Authorization
 )
 
+from app.schemas.auth import LoginSchema
+
 @app.post("/login")
-def login(data: dict, db: Session = Depends(get_db)):
+def login(data: LoginSchema, db: Session = Depends(get_db)):
     sector = db.query(Sector).filter(
-        Sector.name == data["username"],
+        Sector.name == data.username,
         Sector.active == True
     ).first()
 
     if not sector:
         raise HTTPException(status_code=401, detail="Sector inexistente")
 
-    if not verify_password(data["password"], sector.password_hash):
+    if not verify_password(data.password, sector.password_hash):
         raise HTTPException(status_code=401, detail="Password incorrecto")
 
     token = create_access_token({
         "sector_id": sector.id,
         "sector": sector.name,
-        "role": getattr(sector, "role", "sector")
+        "role": "sector"
     })
 
-    return {"token": token}
-
+    return {
+        "token": token,
+        "sector": sector.name
+    }
 
 # 📦 Routers
 app.include_router(forms.router)

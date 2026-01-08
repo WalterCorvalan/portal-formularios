@@ -8,7 +8,7 @@ class Form(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(100), nullable=False)
-    embed_url = Column(String(255), nullable=False)
+    embed_url = Column(String(500), nullable=False)
     active = Column(Boolean, default=True)
 
     sectors = relationship(
