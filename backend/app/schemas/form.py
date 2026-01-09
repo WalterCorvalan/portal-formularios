@@ -8,3 +8,8 @@ class FormOut(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class FormUpdateSchema(BaseModel):
+    name: str
+    embed_url: str

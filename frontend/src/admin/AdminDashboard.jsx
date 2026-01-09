@@ -13,13 +13,22 @@ export default function AdminDashboard() {
       
       {/* SIDEBAR */}
       <aside className="w-64 bg-white shadow-xl hidden md:flex flex-col">
-        <div className="p-6 font-black text-lg">Admin</div>
+        <div className="p-6 font-black text-lg text-indigo-600">
+          Admin Panel
+        </div>
 
         <nav className="flex-1 px-4 space-y-2">
-          <button onClick={() => navigate("/admin/sectors")} className="btn-admin">
+          <button
+            onClick={() => navigate("/admin/sectors")}
+            className="btn-admin"
+          >
             Sectores
           </button>
-          <button onClick={() => navigate("/admin/forms")} className="btn-admin">
+
+          <button
+            onClick={() => navigate("/admin/forms")}
+            className="btn-admin"
+          >
             Formularios
           </button>
         </nav>

@@ -62,3 +62,23 @@ def create_sector(
         "name": sector.name,
         "active": sector.active
     }
+
+# ❌ ELIMINAR SECTOR
+@router.delete("/{sector_id}")
+def delete_sector(
+    sector_id: int,
+    _: dict = Depends(require_admin),
+    db: Session = Depends(get_db)
+):
+    sector = db.query(Sector).filter(Sector.id == sector_id).first()
+
+    if not sector:
+        raise HTTPException(status_code=404, detail="Sector no encontrado")
+
+
+    db.delete(sector)
+    db.commit()
+
+    return {"ok": True}
+
+
