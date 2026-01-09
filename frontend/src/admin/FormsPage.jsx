@@ -9,8 +9,6 @@ export default function FormsPage() {
   const [embedUrl, setEmbedUrl] = useState("");
 
   const [selectedSector, setSelectedSector] = useState({});
-
-  // 👇 edición
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState("");
   const [editEmbed, setEditEmbed] = useState("");
@@ -29,13 +27,11 @@ export default function FormsPage() {
   }, []);
 
   const createForm = async () => {
-    if (!name || !embedUrl) return alert("Completar datos");
-
+    if (!name || !embedUrl) return;
     await api.post("/admin/forms", {
       name,
       embed_url: embedUrl,
     });
-
     setName("");
     setEmbedUrl("");
     loadAll();
@@ -43,78 +39,86 @@ export default function FormsPage() {
 
   const assign = async (formId) => {
     const sectorId = selectedSector[formId];
-    if (!sectorId) return alert("Elegí un sector");
-
+    if (!sectorId) return;
     await api.post(`/admin/forms/${formId}/assign/${sectorId}`);
     setSelectedSector({ ...selectedSector, [formId]: "" });
     loadAll();
   };
 
   const unassign = async (formId, sectorId) => {
-    if (!confirm("¿Desasignar este formulario del sector?")) return;
-
     await api.delete(`/admin/forms/${formId}/assign/${sectorId}`);
     loadAll();
   };
 
-  // ✏️ editar
   const startEdit = (f) => {
     setEditingId(f.id);
     setEditName(f.name);
     setEditEmbed(f.embed_url);
   };
 
-  const cancelEdit = () => {
-    setEditingId(null);
-    setEditName("");
-    setEditEmbed("");
-  };
-
   const saveEdit = async (id) => {
-    if (!editName || !editEmbed) return alert("Datos incompletos");
-
     await api.put(`/admin/forms/${id}`, {
       name: editName,
       embed_url: editEmbed,
     });
-
-    cancelEdit();
+    setEditingId(null);
     loadAll();
   };
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-6 max-w-7xl mx-auto px-4">
       {/* HEADER */}
       <div>
-        <h1 className="text-2xl font-black">Formularios</h1>
-        <p className="text-slate-500">Gestión, asignación y edición</p>
+        <h1 className="text-3xl font-black text-slate-800">📄 Formularios</h1>
+        <p className="text-slate-500">
+          Creación, edición y asignación por sector
+        </p>
       </div>
 
       {/* CREATE FORM */}
-      <div className="bg-white p-6 rounded-3xl shadow space-y-4">
-        <h2 className="font-bold">Nuevo formulario</h2>
+      <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+        <h2 className="text-lg font-black text-slate-800 mb-4 flex items-center gap-2">
+          ➕ Nuevo formulario
+        </h2>
 
-        <div className="grid gap-4 md:grid-cols-3">
-          <input
-            placeholder="Nombre"
-            className="input"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          <input
-            placeholder="Embed URL"
-            className="input"
-            value={embedUrl}
-            onChange={(e) => setEmbedUrl(e.target.value)}
-          />
-          <button onClick={createForm} className="btn-primary">
-            Crear
-          </button>
+        <div className="grid gap-4 md:grid-cols-5">
+          <div className="md:col-span-2">
+            <label className="text-xs font-bold text-slate-500">
+              Nombre
+            </label>
+            <input
+              className="input mt-1"
+              placeholder="Ej: Reclamos"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+
+          <div className="md:col-span-2">
+            <label className="text-xs font-bold text-slate-500">
+              Embed URL
+            </label>
+            <input
+              className="input mt-1"
+              placeholder="https://noteforms.com/..."
+              value={embedUrl}
+              onChange={(e) => setEmbedUrl(e.target.value)}
+            />
+          </div>
+
+          <div className="flex items-end">
+            <button
+              onClick={createForm}
+              className="btn-primary w-full h-11 text-sm"
+            >
+              Crear
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* LIST */}
-      <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+      {/* GRID */}
+      <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {forms.map((f) => {
           const assigned = sectors.filter((s) =>
             s.forms.some((sf) => sf.id === f.id)
@@ -125,60 +129,79 @@ export default function FormsPage() {
           return (
             <div
               key={f.id}
-              className="bg-white rounded-2xl shadow p-6 flex flex-col gap-4"
+              className="bg-zinc-300 rounded-2xl shadow-sm p-5 flex flex-col gap-4"
             >
-              {/* INFO / EDIT */}
-              <div className="space-y-2">
-                {isEditing ? (
-                  <>
-                    <input
-                      className="input"
-                      value={editName}
-                      onChange={(e) => setEditName(e.target.value)}
-                    />
-                    <input
-                      className="input"
-                      value={editEmbed}
-                      onChange={(e) => setEditEmbed(e.target.value)}
-                    />
-                  </>
-                ) : (
-                  <>
-                    <h3 className="font-black text-lg truncate">{f.name}</h3>
-                    <p className="text-xs text-slate-400 truncate">
-                      {f.embed_url}
-                    </p>
-                  </>
+              {/* TITLE */}
+              <div className="flex justify-between items-start gap-3">
+                <div className="flex-1">
+                  {isEditing ? (
+                    <>
+                      <input
+                        className="input"
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                      />
+                      <input
+                        className="input mt-2"
+                        value={editEmbed}
+                        onChange={(e) => setEditEmbed(e.target.value)}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <h3 className="font-black text-lg truncate">
+                        {f.name}
+                      </h3>
+                      <p className="text-xs text-slate-400 truncate">
+                        {f.embed_url}
+                      </p>
+                    </>
+                  )}
+                </div>
+
+                {!isEditing && (
+                  <button
+                    onClick={() => startEdit(f)}
+                    className="text-slate-800 text-sm font-bold hover:underline"
+                  >
+                    ✏️
+                  </button>
                 )}
               </div>
 
-              {/* ASSIGNED */}
-              <div className="space-y-1">
-                {assigned.length > 0 ? (
-                  assigned.map((s) => (
-                    <div
-                      key={s.id}
-                      className="flex justify-between items-center bg-slate-100 px-3 py-1 rounded-lg text-sm"
-                    >
-                      <span>{s.name}</span>
-                      <button
-                        onClick={() => unassign(f.id, s.id)}
-                        className="text-red-500 font-bold"
+              {/* SECTORS */}
+              <div>
+                <div className="text-xs font-bold text-slate-500 mb-2">
+                  Sectores
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {assigned.length > 0 ? (
+                    assigned.map((s) => (
+                      <span
+                        key={s.id}
+                        className="flex items-center gap-1.5 bg-indigo-50 text-slate-800 px-2.5 py-0.5 rounded-full text-xs font-semibold"
                       >
-                        ✕
-                      </button>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-sm text-red-500">
-                    No asignado a ningún sector
-                  </div>
-                )}
+                        {s.name}
+                        <button
+                          onClick={() => unassign(f.id, s.id)}
+                          className="hover:text-red-500"
+                        >
+                          ✕
+                        </button>
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-xs text-red-500 font-semibold">
+                      Sin asignar
+                    </span>
+                  )}
+                </div>
               </div>
 
               {/* ACTIONS */}
               {isEditing ? (
-                <div className="flex gap-2 mt-auto">
+                <div className="flex gap-2">
                   <button
                     onClick={() => saveEdit(f.id)}
                     className="btn-primary flex-1"
@@ -186,48 +209,39 @@ export default function FormsPage() {
                     Guardar
                   </button>
                   <button
-                    onClick={cancelEdit}
+                    onClick={() => setEditingId(null)}
                     className="btn-secondary"
                   >
                     Cancelar
                   </button>
                 </div>
               ) : (
-                <>
-                  <div className="flex gap-2 mt-auto">
-                    <select
-                      className="input flex-1"
-                      value={selectedSector[f.id] || ""}
-                      onChange={(e) =>
-                        setSelectedSector({
-                          ...selectedSector,
-                          [f.id]: e.target.value,
-                        })
-                      }
-                    >
-                      <option value="">Asignar a sector</option>
-                      {sectors.map((s) => (
-                        <option key={s.id} value={s.id}>
-                          {s.name}
-                        </option>
-                      ))}
-                    </select>
-
-                    <button
-                      onClick={() => assign(f.id)}
-                      className="btn-secondary"
-                    >
-                      OK
-                    </button>
-                  </div>
+                <div className="flex gap-2">
+                  <select
+                    className="input flex-1"
+                    value={selectedSector[f.id] || ""}
+                    onChange={(e) =>
+                      setSelectedSector({
+                        ...selectedSector,
+                        [f.id]: e.target.value,
+                      })
+                    }
+                  >
+                    <option value="">Asignar sector</option>
+                    {sectors.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name}
+                      </option>
+                    ))}
+                  </select>
 
                   <button
-                    onClick={() => startEdit(f)}
-                    className="text-sm font-bold text-slate-500 hover:text-slate-800 mt-2"
+                    onClick={() => assign(f.id)}
+                    className="btn-secondary"
                   >
-                    ✏️ Editar
+                    OK
                   </button>
-                </>
+                </div>
               )}
             </div>
           );

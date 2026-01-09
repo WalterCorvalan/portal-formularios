@@ -1,48 +1,65 @@
-import { Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
 
   const logout = () => {
-    localStorage.removeItem("adminToken");
-    navigate("/admin/login");
+    localStorage.clear();
+    navigate("/login");
   };
 
   return (
-    <div className="min-h-screen flex bg-slate-100">
-      
-      {/* SIDEBAR */}
-      <aside className="w-64 bg-white shadow-xl hidden md:flex flex-col">
-        <div className="p-6 font-black text-lg text-indigo-600">
-          Admin Panel
+    <div className="min-h-screen bg-slate-50">
+      {/* NAVBAR */}
+      <header className="bg-white border-b shadow-sm">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+          {/* LEFT */}
+          <div className="flex items-center gap-6">
+            <h1 className="font-black text-lg text-slate-800">
+              Admin Panel
+            </h1>
+
+            <nav className="flex gap-4">
+              <NavLink
+                to="/admin/forms"
+                className={({ isActive }) =>
+                  `text-sm font-bold ${
+                    isActive
+                      ? "text-slate-800"
+                      : "text-slate-500 hover:text-indigo-700"
+                  }`
+                }
+              >
+                Formularios
+              </NavLink>
+
+              <NavLink
+                to="/admin/sectors"
+                className={({ isActive }) =>
+                  `text-sm font-bold ${
+                    isActive
+                      ? "text-slate-800"
+                      : "text-slate-500 hover:text-indigo-700"
+                  }`
+                }
+              >
+                Sectores
+              </NavLink>
+            </nav>
+          </div>
+
+          {/* RIGHT */}
+          <button
+            onClick={logout}
+            className="text-sm font-bold text-slate-500 hover:text-red-600"
+          >
+            Cerrar sesión
+          </button>
         </div>
-
-        <nav className="flex-1 px-4 space-y-2">
-          <button
-            onClick={() => navigate("/admin/sectors")}
-            className="btn-admin"
-          >
-            Sectores
-          </button>
-
-          <button
-            onClick={() => navigate("/admin/forms")}
-            className="btn-admin"
-          >
-            Formularios
-          </button>
-        </nav>
-
-        <button
-          onClick={logout}
-          className="m-4 text-sm text-red-500 font-bold"
-        >
-          Cerrar sesión
-        </button>
-      </aside>
+      </header>
 
       {/* CONTENT */}
-      <main className="flex-1 p-6">
+      <main className="max-w-7xl mx-auto px-6 py-8">
         <Outlet />
       </main>
     </div>
