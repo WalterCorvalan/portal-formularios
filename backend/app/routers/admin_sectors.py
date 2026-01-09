@@ -10,13 +10,31 @@ router = APIRouter(
     tags=["admin-sectors"]
 )
 
-# ✅ LISTAR SECTORES (LO QUE FALTABA)
+# ✅ LISTAR SECTORES + FORMULARIOS ASIGNADOS
 @router.get("")
 def get_sectors(
     _: dict = Depends(require_admin),
     db: Session = Depends(get_db)
 ):
-    return db.query(Sector).all()
+    sectors = db.query(Sector).all()
+
+    return [
+        {
+            "id": sector.id,
+            "name": sector.name,
+            "active": sector.active,
+            "forms": [
+                {
+                    "id": form.id,
+                    "name": form.name,
+                    "embed_url": form.embed_url,
+                    "active": form.active
+                }
+                for form in sector.forms
+            ]
+        }
+        for sector in sectors
+    ]
 
 
 # ✅ CREAR SECTOR
@@ -39,4 +57,8 @@ def create_sector(
     db.commit()
     db.refresh(sector)
 
-    return sector
+    return {
+        "id": sector.id,
+        "name": sector.name,
+        "active": sector.active
+    }
